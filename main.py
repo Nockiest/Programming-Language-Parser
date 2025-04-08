@@ -18,7 +18,6 @@ class ComparisonOperator(Enum):
     EQUAL = "=="
     
 stack: dict = {}
-splittedLines = code10.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 
 tokens = completeTokens[0]
