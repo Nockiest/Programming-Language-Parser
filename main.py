@@ -1,5 +1,6 @@
 code:str = "1 + 2"
-code2 = "1 + 1 * 2"
+code2 = "( 1 + 1 ) * 2"
+code3:str = ''
  
 #tokens are added in the compile function
 tokens = code2.split()
@@ -49,26 +50,23 @@ class NodeTimes(Node):
 def A():
     global tokens
     global parseProgress
-    if parseProgress > len(tokens): # this shouldnt throw an error
-        Exception("Invalid input in A function")
-    if tokens[parseProgress] != '':
-        resB = B( )
-        resA = A_(  resB)
-        return resA
+    # if parseProgress > len(tokens): # this shouldnt throw an error
+    #     Exception("Invalid input in A function")
+    # if tokens[parseProgress] != '':
+    resB = B( )
+    resA = A_(  resB)
+    return resA
  
 
 def A_(  lfs):
     global tokens
     global parseProgress
     match tokens[parseProgress]:
-        case '':    
-            return lfs
         case '*':
             parseProgress += 1
             resB = B(  )
             resA_ = A_(  resB)
             return NodeTimes(lfs, resA_)
-       
         case _:
             return lfs
 
@@ -82,29 +80,28 @@ def S( ):
 def S_( lfs):
     global tokens
     global parseProgress
-    if tokens[parseProgress] == '':
-        return lfs
     if tokens[parseProgress] == '+':
         parseTokens()
         resA = A()
         resS = S_(resA)
         return NodeAdd(lfs, resS,)
+    else:
+        return lfs
     # elif tokens[parseProgress] == '':
     #     return resA
    
-    return
-    
-
 
 def B( ):
     global tokens
     global parseProgress
     match   tokens[parseProgress]:
-        # case '(':
-        #     resS = S()
-        #     if lfs[0] != ')':
-        #         Exception("Invalid input in B function")
-        #     return resS
+        case '(':
+            parseTokens()
+            resS = S()
+            if tokens[parseProgress]!= ')':
+                Exception("Invalid input in B function")
+            parseTokens()
+            return resS
         case '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9':
             number = parseTokens(1)
             return Node(number, None, None)
