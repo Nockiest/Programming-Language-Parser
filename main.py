@@ -3,6 +3,7 @@ code2 = "1 + 1 * 2"
  
 #tokens are added in the compile function
 tokens = code2.split()
+tokens.append('')
 parseProgress:int = 0
 
 def parseTokens(number:int=1):
@@ -48,14 +49,13 @@ class NodeTimes(Node):
 def A():
     global tokens
     global parseProgress
-    if tokens[parseProgress] == '' or  parseProgress > len(tokens): # this shouldnt throw an error
+    if parseProgress > len(tokens): # this shouldnt throw an error
         Exception("Invalid input in A function")
     if tokens[parseProgress] != '':
         resB = B( )
         resA = A_(  resB)
         return resA
-    else:
-        Exception("Invalid input in A function")
+ 
 
 def A_(  resB):
     global tokens
@@ -63,13 +63,14 @@ def A_(  resB):
     if parseProgress >= len(tokens):
         return resB
     match tokens[parseProgress]:
+        case '':    
+            return resB
         case '*':
             parseProgress += 1
             resB = B(  )
             resA_ = A_(  resB)
             return NodeTimes(resB, resA_)
-        case None:
-            Exception("Invalid input in A_ function")
+       
         case _:
             return resB
 
@@ -83,17 +84,16 @@ def S( ):
 def S_( resA):
     global tokens
     global parseProgress
-    if parseProgress >= len(tokens):
+    if tokens[parseProgress] == '':
         return resA
-    elif tokens[parseProgress] == '+':
+    if tokens[parseProgress] == '+':
         parseTokens()
         resA = A()
         resS = S_(resA)
         return NodeAdd(resS, resA)
     # elif tokens[parseProgress] == '':
     #     return resA
-    else:
-        Exception("Invalid input in S function")
+   
     return
     
 
