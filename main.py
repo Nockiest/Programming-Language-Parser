@@ -1,35 +1,30 @@
-code:str = "1 + 2"
+code: str = "1 + 2"
 code2 = "( 1 + 1 ) * 2"
-code3:str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
-code4:str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 ; 9 + 6 ;'
+code3: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
+code4: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 ; 9 + 6 ;'
+code5: str = 'var a = 5 '
+code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 
-splittedLines = code4.split(";")
-#tokens are added in the compile function
+splittedLines = code5.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 tokens = completeTokens[0]
 codeLineNum = 0
-parseProgress:int = 0
+parseProgress: int = 0
 
-def parseTokens(number:int=1):
+
+def parseTokens(number: int = 1):
     global tokens
     global parseProgress
-    takenOut:str
+    takenOut: str
     if parseProgress >= len(tokens):
         Exception("Invalid input in parseTokens function")
-    if number ==1:
+    if number == 1:
         takenOut = tokens[parseProgress]
     else:
-      takenOut = tokens[parseProgress:(parseProgress +number)]
+        takenOut = tokens[parseProgress:(parseProgress + number)]
     parseProgress += number
     return takenOut
 
-# class codeLines():
-#     def __init__(self, tokens:str):
-#         self.tokens =
-#         self.codeLines = splitTokenLines(tokens)
-        
-#     def splitTokenLines(self):
-#         return self.codeLines
 
 class Node:
     def __init__(self, value, left, right):
@@ -42,12 +37,13 @@ class Node:
 
     def __repr__(self):
         return self.__str__()
-    
+
     def evaluate(self):
         if isinstance(int(self.value), int):
             return int(self.value)
         else:
             Exception("Invalid input for evaluation in Node class")
+
 
 class NodeAdd(Node):
     def __init__(self, left, right):
@@ -57,7 +53,8 @@ class NodeAdd(Node):
 
     def evaluate(self):
         return self.left.evaluate() + self.right.evaluate()
-    
+
+
 class NodeTimes(Node):
     def __init__(self, left, right):
         super().__init__('*', left, right)
@@ -65,38 +62,67 @@ class NodeTimes(Node):
     def evaluate(self):
         return self.left.evaluate() * self.right.evaluate()
 
+class Variable():
+    def __init__(self, name, value):
+        self.name = name
+        self.value = value
+
+    def __str__(self):
+        return f"Variable({self.name}, {self.value})"
+
+    def __repr__(self):
+        return self.__str__()
+
+    def evaluate(self):
+        return self.value
+
+def V():
+    global tokens
+    global parseProgress
+    if tokens[parseProgress] == 'var':
+        parseTokens()
+        varName = parseTokens()
+        if varName.isnumeric():
+            raise Exception("Invalid variable name: Variable names cannot be numbers")
+        if tokens[parseProgress] != '=':
+            raise Exception("Invalid input in V function")
+        parseTokens()
+        resS = S()
+        return Variable(varName, resS.evaluate())
+    else:
+        resS = S()
+        return resS
 
 def A():
     global tokens
     global parseProgress
-    # if parseProgress > len(tokens): # this shouldnt throw an error
-    #     Exception("Invalid input in A function")
-    # if tokens[parseProgress] != '':
-    resB = B( )
-    resA = A_(  resB)
+    resB = B()
+    resA = A_(resB)
     return resA
- 
 
-def A_(  lfs):
+
+def A_(lfs):
     global tokens
     global parseProgress
     match tokens[parseProgress]:
         case '*':
             parseProgress += 1
-            resB = B(  )
-            resA_ = A_(  resB)
+            resB = B()
+            resA_ = A_(resB)
             return NodeTimes(lfs, resA_)
         case _:
             return lfs
 
-def S( ):
+
+def S():
     global tokens
     global parseProgress
-    resA = A( )
+    resA = A()
     resS = S_(resA)
     return resS
- 
-def S_( lfs):
+
+
+def S_(lfs):
     global tokens
     global parseProgress
     if tokens[parseProgress] == '+':
@@ -109,14 +135,15 @@ def S_( lfs):
     # elif tokens[parseProgress] == '':
     #     return resA
 
-def B( ):
+
+def B():
     global tokens
     global parseProgress
     match   tokens[parseProgress]:
         case '(':
             parseTokens()
             resS = S()
-            if tokens[parseProgress]!= ')':
+            if tokens[parseProgress] != ')':
                 Exception("Invalid input in B function")
             parseTokens()
             return resS
@@ -127,30 +154,33 @@ def B( ):
             Exception("Invalid input in B function")
     # return Node(lfs[0], None, None)
 
-def compile( ):
+
+def compile():
     global codeLineNum
     global completeTokens
     global parseProgress
     global tokens
-    while codeLineNum < len(completeTokens)-1:
+    while codeLineNum < len(completeTokens):
         tokens = completeTokens[codeLineNum]
         codeLineNum += 1
-        res=S()
+        res = V()
         parseProgress = 0
-        if res:
-           print(res.evaluate())
+        if isinstance(res, Node):
+            print(res.evaluate())
+        elif isinstance(res, Variable):
+            print(res.value)
         else:
             Exception("Invalid input in compile function")
-        
+
     return
 
 
-compile( )
-
+compile()
 
 
 # gramatika = {
-
+#     "V": ['var x =', 'S'],
+#     "V.": S,
 #     "S": ['A', 'S.'],
 #     "S.": ['+', 'A', 'S.'],
 #     'S.': [None],
