@@ -6,7 +6,8 @@ code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
-code9: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b ; } else { var d = a * b + c ; }'
+code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } '
+code10: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } else { var d = a * b + c ; }'
 
 from enum import Enum
 
@@ -16,7 +17,7 @@ class ComparisonOperator(Enum):
     EQUAL = "=="
     
 stack: dict = {}
-splittedLines = code8.split(";")
+splittedLines = code9.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 
 tokens = completeTokens[0]
@@ -96,6 +97,28 @@ class NodeCompare(Node):
             case _:
                 raise Exception("Unsupported comparison operator")
 
+def I(condition = False):
+    global tokens
+    global parseProgress
+    if tokens[parseProgress] == 'if':
+        parseTokens()
+        resC = C()
+        if resC.evaluate():
+            I(True)
+        else:
+            I(False)
+        # if tokens[parseProgress] != '}':
+        #     raise Exception("Invalid end of condition body in I function")
+        # parseTokens()
+    if tokens[parseProgress-1] == '{':
+     if condition:
+        resC = C()
+        parseTokens()
+     else:
+         print("Condition not met and should move to the end of the if body block")
+    else :
+        V()
+
 def V():
     global tokens
     global parseProgress
@@ -132,15 +155,15 @@ def C_(lfs):
     if operatorToken == '==':
         resS = S()
         resC_ = C_(resS)
-        return NodeCompare(resS, resC_, ComparisonOperator.EQUAL)
+        return NodeCompare(lfs, resC_, ComparisonOperator.EQUAL)
     elif operatorToken == '>':
         resS = S()
         resC_ = C_(resS)
-        return NodeCompare(resS, resC_, ComparisonOperator.GREATER_THAN)
+        return NodeCompare(lfs, resC_, ComparisonOperator.GREATER_THAN)
     elif operatorToken == '>=': 
         resS = S()
         resC_ = C_(resS)
-        return NodeCompare(resS, resC_, ComparisonOperator.GREATER_THAN_OR_EQUAL)
+        return NodeCompare(lfs, resC_, ComparisonOperator.GREATER_THAN_OR_EQUAL)
     else:
         return lfs
 
@@ -213,7 +236,10 @@ def compile():
     while codeLineNum < len(completeTokens):
         tokens = completeTokens[codeLineNum]
         codeLineNum += 1
-        V()
+        if len(tokens) == 1 and tokens[0] == '':
+            parseProgress = 0
+            continue
+        I()
         parseProgress = 0
         print(stack)
 
@@ -221,7 +247,8 @@ compile()
 
 
 # gramatika = {
-#     "I": ['if', '(' 'S'],
+#     "I": ['if', '{' 'C', I],
+#     "I.": [ '}' V ],
 #     "I.": [V],
 #     "V": ['var x =', 'S'],
 #     "V.": C,
