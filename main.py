@@ -7,7 +7,8 @@ code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
 code9: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } ; '
-code10: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } else { var d = a * b + c ; }'
+code10: str = ' if 5 > 7 { var c = 6 + 5 } else { var d = 5 + 6 * c } ;'	
+code11: str = 'var a = 5 ; var b = 6 ; var c = 0 ; if a > b { var c = a + b } else { var d = a + b * 5 } ;'	
 
 from enum import Enum
 
@@ -29,7 +30,7 @@ def parseTokens(number: int = 1):
     global tokens
     global parseProgress
     takenOut: str
-    if parseProgress >= len(tokens):
+    if parseProgress >= len(tokens)-1:
         Exception("Invalid input in parseTokens function")
     if number == 1:
         takenOut = tokens[parseProgress]
@@ -52,6 +53,8 @@ class Node:
         return self.__str__()
 
     def evaluate(self):
+        if self.value == None:
+            return None
         if isinstance(self.value, int):
             return self.value
         elif isinstance(int(self.value), int):
@@ -68,6 +71,18 @@ class NodeAdd(Node):
 
     def evaluate(self):
         return self.left.evaluate() + self.right.evaluate()
+
+def moveToChar(char: str):
+    global parseProgress
+    global tokens
+    if char == tokens[parseProgress]:
+        parseProgress += 1
+        print('incremented char so it finds the next one')
+    while parseProgress < len(tokens) and tokens[parseProgress] != char:
+        parseProgress += 1
+    if parseProgress >= len(tokens):
+        raise Exception(f"Invalid input in moveToChar function: '{char}' not found")
+    return tokens[parseProgress]
 
 
 class NodeTimes(Node):
@@ -107,25 +122,32 @@ def I(condition = False):
             I(True)
         else:
             I(False)
-        # if tokens[parseProgress] != '}':
-        #     raise Exception("Invalid end of condition body in I function")
-        # parseTokens()
     if tokens[parseProgress-1] == '{':
      if condition:
-        resC = C()
-        parseTokens()
+        resC = V()
+        if tokens[parseProgress] == 'else':
+         moveToChar('}')
      else:
-        # Move to the next '}' and one index past it
-        while parseProgress < len(tokens) and tokens[parseProgress] != '}':
-            parseProgress += 1
-        if parseProgress < len(tokens) and tokens[parseProgress] == '}':
-            parseProgress += 1  # Move one index past '}'
-        else:
-            raise Exception("Invalid input: Missing '}' to close the block")
+ 
+        moveToChar('}')
+        if tokens[parseProgress +1] == 'else':
+            moveToChar('}')
+       
+        
+        if tokens[parseProgress] == 'else':
+            parseTokens()
+            if tokens[parseProgress] == '{':
+                parseTokens()
+                V( )
+             
+            elif tokens[parseProgress] == ';':
+                parseTokens()
+            else:
+                raise Exception("Invalid input in I function")
     else :
         V()
 
-def V():
+def V( ):
     global tokens
     global parseProgress
     if tokens[parseProgress] == 'var':
@@ -142,7 +164,9 @@ def V():
         return
     else:
         resC = C()
-        print (resC.evaluate())
+        if resC:
+            
+           print (resC.evaluate())
 
 def C():
     global tokens
