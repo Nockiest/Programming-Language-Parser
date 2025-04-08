@@ -6,7 +6,7 @@ code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
-code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } '
+code9: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } ; '
 code10: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } else { var d = a * b + c ; }'
 
 from enum import Enum
@@ -17,7 +17,7 @@ class ComparisonOperator(Enum):
     EQUAL = "=="
     
 stack: dict = {}
-splittedLines = code9.split(";")
+splittedLines = code10.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 
 tokens = completeTokens[0]
@@ -115,7 +115,13 @@ def I(condition = False):
         resC = C()
         parseTokens()
      else:
-         print("Condition not met and should move to the end of the if body block")
+        # Move to the next '}' and one index past it
+        while parseProgress < len(tokens) and tokens[parseProgress] != '}':
+            parseProgress += 1
+        if parseProgress < len(tokens) and tokens[parseProgress] == '}':
+            parseProgress += 1  # Move one index past '}'
+        else:
+            raise Exception("Invalid input: Missing '}' to close the block")
     else :
         V()
 
