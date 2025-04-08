@@ -1,10 +1,13 @@
 code:str = "1 + 2"
 code2 = "( 1 + 1 ) * 2"
 code3:str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
- 
+code4:str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 ; 9 + 6 ;'
+
+splittedLines = code4.split(";")
 #tokens are added in the compile function
-tokens = code.split()
-tokens.append('')
+completeTokens = [subarray.split() + [''] for subarray in splittedLines]
+tokens = completeTokens[0]
+codeLineNum = 0
 parseProgress:int = 0
 
 def parseTokens(number:int=1):
@@ -19,6 +22,14 @@ def parseTokens(number:int=1):
       takenOut = tokens[parseProgress:(parseProgress +number)]
     parseProgress += number
     return takenOut
+
+# class codeLines():
+#     def __init__(self, tokens:str):
+#         self.tokens =
+#         self.codeLines = splitTokenLines(tokens)
+        
+#     def splitTokenLines(self):
+#         return self.codeLines
 
 class Node:
     def __init__(self, value, left, right):
@@ -117,8 +128,20 @@ def B( ):
     # return Node(lfs[0], None, None)
 
 def compile( ):
-    res = S()
-    print(res.evaluate())
+    global codeLineNum
+    global completeTokens
+    global parseProgress
+    global tokens
+    while codeLineNum < len(completeTokens)-1:
+        tokens = completeTokens[codeLineNum]
+        codeLineNum += 1
+        res=S()
+        parseProgress = 0
+        if res:
+           print(res.evaluate())
+        else:
+            Exception("Invalid input in compile function")
+        
     return
 
 
@@ -127,6 +150,7 @@ compile( )
 
 
 # gramatika = {
+
 #     "S": ['A', 'S.'],
 #     "S.": ['+', 'A', 'S.'],
 #     'S.': [None],
