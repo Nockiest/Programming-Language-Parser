@@ -5,9 +5,16 @@ code4: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 
 code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
+code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
 code8: str = 'var a = 5 ; var b = 6 ; if ( a > b ) { var c = a + b ; } else { var d = a * b + c ; }'
 
+from enum import Enum
 
+class ComparisonOperator(Enum):
+    GREATER_THAN = ">"
+    GREATER_THAN_OR_EQUAL = ">="
+    EQUAL = "=="
+    
 stack: dict = {}
 splittedLines = code7.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
@@ -68,6 +75,26 @@ class NodeTimes(Node):
 
     def evaluate(self):
         return self.left.evaluate() * self.right.evaluate()
+
+class NodeCompare(Node):
+    def __init__(self, left, right, comparison_type: ComparisonOperator):
+        super().__init__(comparison_type, left, right)
+        if not isinstance(comparison_type, ComparisonOperator):
+            raise Exception("Invalid comparison operator type")
+
+    def evaluate(self):
+        left_value = self.left.evaluate()
+        right_value = self.right.evaluate()
+
+        match self.value:  # self.value holds the ComparisonOperator
+            case ComparisonOperator.GREATER_THAN:
+                return left_value > right_value
+            case ComparisonOperator.GREATER_THAN_OR_EQUAL:
+                return left_value >= right_value
+            case ComparisonOperator.EQUAL:
+                return left_value == right_value
+            case _:
+                raise Exception("Unsupported comparison operator")
 
 def V():
     global tokens
@@ -176,6 +203,8 @@ compile()
 
 
 # gramatika = {
+#     "I": ['if', '(' 'S'],
+#     "I.": [V],
 #     "V": ['var x =', 'S'],
 #     "V.": S,
 #     "S": ['A', 'S.'],
