@@ -1,9 +1,9 @@
 code:str = "1 + 2"
 code2 = "( 1 + 1 ) * 2"
-code3:str = ''
+code3:str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
  
 #tokens are added in the compile function
-tokens = code2.split()
+tokens = code.split()
 tokens.append('')
 parseProgress:int = 0
 
@@ -31,20 +31,28 @@ class Node:
 
     def __repr__(self):
         return self.__str__()
+    
+    def evaluate(self):
+        if isinstance(int(self.value), int):
+            return int(self.value)
+        else:
+            Exception("Invalid input for evaluation in Node class")
 
 class NodeAdd(Node):
     def __init__(self, left, right):
+        if not left or right:
+            Exception("Invalid input for NodeAdd class")
         super().__init__('+', left, right)
 
-    def get_value(self):
-        return self.left.get_value() + self.right.get_value()
-
+    def evaluate(self):
+        return self.left.evaluate() + self.right.evaluate()
+    
 class NodeTimes(Node):
     def __init__(self, left, right):
         super().__init__('*', left, right)
 
-    def get_value(self):
-        return self.left.get_value() * self.right.get_value()
+    def evaluate(self):
+        return self.left.evaluate() * self.right.evaluate()
 
 
 def A():
@@ -89,7 +97,6 @@ def S_( lfs):
         return lfs
     # elif tokens[parseProgress] == '':
     #     return resA
-   
 
 def B( ):
     global tokens
@@ -109,10 +116,9 @@ def B( ):
             Exception("Invalid input in B function")
     # return Node(lfs[0], None, None)
 
-
 def compile( ):
     res = S()
-    print(res)
+    print(res.evaluate())
     return
 
 
