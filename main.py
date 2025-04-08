@@ -1,4 +1,4 @@
-code:str = "1 + 1"
+code:str = "1 + 2"
 code2 = "1 + 1 * 2"
  
 #tokens are added in the compile function
@@ -57,22 +57,20 @@ def A():
         return resA
  
 
-def A_(  resB):
+def A_(  lfs):
     global tokens
     global parseProgress
-    if parseProgress >= len(tokens):
-        return resB
     match tokens[parseProgress]:
         case '':    
-            return resB
+            return lfs
         case '*':
             parseProgress += 1
             resB = B(  )
             resA_ = A_(  resB)
-            return NodeTimes(resB, resA_)
+            return NodeTimes(lfs, resA_)
        
         case _:
-            return resB
+            return lfs
 
 def S( ):
     global tokens
@@ -81,16 +79,16 @@ def S( ):
     resS = S_(resA)
     return resS
  
-def S_( resA):
+def S_( lfs):
     global tokens
     global parseProgress
     if tokens[parseProgress] == '':
-        return resA
+        return lfs
     if tokens[parseProgress] == '+':
         parseTokens()
         resA = A()
         resS = S_(resA)
-        return NodeAdd(resS, resA)
+        return NodeAdd(lfs, resS,)
     # elif tokens[parseProgress] == '':
     #     return resA
    
@@ -115,14 +113,13 @@ def B( ):
     # return Node(lfs[0], None, None)
 
 
-def compile(code: str):
-    print(code)
+def compile( ):
     res = S()
     print(res)
     return
 
 
-compile(code)
+compile( )
 
 
 
