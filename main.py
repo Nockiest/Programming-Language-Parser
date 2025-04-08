@@ -5,8 +5,10 @@ code4: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 
 code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 
-splittedLines = code5.split(";")
+stack: dict = {}
+splittedLines = code6.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
+
 tokens = completeTokens[0]
 codeLineNum = 0
 parseProgress: int = 0
@@ -88,10 +90,11 @@ def V():
             raise Exception("Invalid input in V function")
         parseTokens()
         resS = S()
+        stack[varName] = resS.evaluate()
         return Variable(varName, resS.evaluate())
     else:
         resS = S()
-        return resS
+        print (resS.evaluate())
 
 def A():
     global tokens
@@ -165,14 +168,13 @@ def compile():
         codeLineNum += 1
         res = V()
         parseProgress = 0
-        if isinstance(res, Node):
-            print(res.evaluate())
-        elif isinstance(res, Variable):
-            print(res.value)
-        else:
-            Exception("Invalid input in compile function")
+        # if isinstance(res, Node):
+        #     print(res.evaluate())
+        # elif isinstance(res, Variable):
+        #     print(res.value)
+        # else:
+        #     Exception("Invalid input in compile function")
 
-    return
 
 
 compile()
