@@ -4,9 +4,12 @@ code3: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
 code4: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 ; 9 + 6 ;'
 code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
+code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
+code8: str = 'var a = 5 ; var b = 6 ; if ( a > b ) { var c = a + b ; } else { var d = a * b + c ; }'
+
 
 stack: dict = {}
-splittedLines = code6.split(";")
+splittedLines = code7.split(";")
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 
 tokens = completeTokens[0]
@@ -66,22 +69,6 @@ class NodeTimes(Node):
     def evaluate(self):
         return self.left.evaluate() * self.right.evaluate()
 
-# class Variable():
-#     def __init__(self, name, value):
-#         if not isinstance(name, str) or not isinstance(value, int):
-#             raise Exception("Invalid input for Variable class")
-#         self.name = name
-#         self.value = int(value)
-
-#     def __str__(self):
-#         return f"Variable({self.name}, {self.value})"
-
-#     def __repr__(self):
-#         return self.__str__()
-
-#     def evaluate(self):
-#         return self.value
-
 def V():
     global tokens
     global parseProgress
@@ -109,7 +96,6 @@ def A():
     resA = A_(resB)
     return resA
 
-
 def A_(lfs):
     global tokens
     global parseProgress
@@ -122,14 +108,12 @@ def A_(lfs):
         case _:
             return lfs
 
-
 def S():
     global tokens
     global parseProgress
     resA = A()
     resS = S_(resA)
     return resS
-
 
 def S_(lfs):
     global tokens
@@ -143,7 +127,6 @@ def S_(lfs):
         return lfs
     # elif tokens[parseProgress] == '':
     #     return resA
-
 
 def B():
     global tokens
