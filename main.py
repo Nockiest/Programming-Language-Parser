@@ -41,7 +41,9 @@ class Node:
         return self.__str__()
 
     def evaluate(self):
-        if isinstance(int(self.value), int):
+        if isinstance(self.value, int):
+            return self.value
+        elif isinstance(int(self.value), int):
             return int(self.value)
         else:
             Exception("Invalid input for evaluation in Node class")
@@ -64,24 +66,28 @@ class NodeTimes(Node):
     def evaluate(self):
         return self.left.evaluate() * self.right.evaluate()
 
-class Variable():
-    def __init__(self, name, value):
-        self.name = name
-        self.value = value
+# class Variable():
+#     def __init__(self, name, value):
+#         if not isinstance(name, str) or not isinstance(value, int):
+#             raise Exception("Invalid input for Variable class")
+#         self.name = name
+#         self.value = int(value)
 
-    def __str__(self):
-        return f"Variable({self.name}, {self.value})"
+#     def __str__(self):
+#         return f"Variable({self.name}, {self.value})"
 
-    def __repr__(self):
-        return self.__str__()
+#     def __repr__(self):
+#         return self.__str__()
 
-    def evaluate(self):
-        return self.value
+#     def evaluate(self):
+#         return self.value
 
 def V():
     global tokens
     global parseProgress
-    if tokens[parseProgress] == 'var':
+    if tokens[parseProgress] == '':
+        return
+    elif tokens[parseProgress] == 'var':
         parseTokens()
         varName = parseTokens()
         if varName.isnumeric():
@@ -91,7 +97,7 @@ def V():
         parseTokens()
         resS = S()
         stack[varName] = resS.evaluate()
-        return Variable(varName, resS.evaluate())
+        # return Variable(varName, resS.evaluate())
     else:
         resS = S()
         print (resS.evaluate())
@@ -151,7 +157,12 @@ def B():
             parseTokens()
             return resS
         case '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9':
-            number = parseTokens(1)
+            number = parseTokens()
+            return Node(number, None, None)
+        case str(varName):
+            parseTokens()
+            
+            number = stack.get(varName) 
             return Node(number, None, None)
         case _:
             Exception("Invalid input in B function")
@@ -166,8 +177,9 @@ def compile():
     while codeLineNum < len(completeTokens):
         tokens = completeTokens[codeLineNum]
         codeLineNum += 1
-        res = V()
+        V()
         parseProgress = 0
+        print(stack)
         # if isinstance(res, Node):
         #     print(res.evaluate())
         # elif isinstance(res, Variable):
