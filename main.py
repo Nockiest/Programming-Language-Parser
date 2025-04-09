@@ -1,3 +1,4 @@
+from enum import Enum
 code: str = "1 + 2"
 code2 = "( 1 + 1 ) * 2"
 code3: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
@@ -7,38 +8,23 @@ code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
 code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } ;'
-code10: str = ' var d = 0 ; var c = 2 ; if 6 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'	
-code11: str = 'var a = 7 ; var b = 8 ; var c = 0 ; var d = 0 ; if a > b { c = a + b } else { d = a + b * 5 } ;'	
+code10: str = ' var d = 0 ; var c = 2 ; if 8 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'
+code11: str = 'var a = 7 ; var b = 8 ; var c = 0 ; var d = 0 ; if a > b { c = a + b } else { d = a + b * 5 } ;'
 
-from enum import Enum
+
+stack: dict = {} # stores variables
+
+
+splittedLines = code10.split(';')
+completeTokens = [subarray.split() + [''] for subarray in splittedLines]
+tokens = completeTokens[0]
+codeLineNum = 0
+parseProgress: int = 0
 
 class ComparisonOperator(Enum):
     GREATER_THAN = ">"
     GREATER_THAN_OR_EQUAL = ">="
     EQUAL = "=="
-    
-stack: dict = {}
-splittedLines = code10.split(';')
-completeTokens = [subarray.split() + [''] for subarray in splittedLines]
-
-tokens = completeTokens[0]
-codeLineNum = 0
-parseProgress: int = 0
-
-
-def parseTokens(number: int = 1):
-    global tokens
-    global parseProgress
-    takenOut: str
-    if parseProgress >= len(tokens)-1:
-        Exception("Invalid input in parseTokens function")
-    if number == 1:
-        takenOut = tokens[parseProgress]
-    else:
-        takenOut = tokens[parseProgress:(parseProgress + number)]
-    parseProgress += number
-    return takenOut
-
 
 class Node:
     def __init__(self, value, left, right):
@@ -62,7 +48,6 @@ class Node:
         else:
             Exception("Invalid input for evaluation in Node class")
 
-
 class NodeAdd(Node):
     def __init__(self, left, right):
         if not left or right:
@@ -71,6 +56,21 @@ class NodeAdd(Node):
 
     def evaluate(self):
         return self.left.evaluate() + self.right.evaluate()
+
+
+def parseTokens(number: int = 1):
+    global tokens
+    global parseProgress
+    takenOut: str
+    if parseProgress >= len(tokens)-1:
+        Exception("Invalid input in parseTokens function")
+    if number == 1:
+        takenOut = tokens[parseProgress]
+    else:
+        takenOut = tokens[parseProgress:(parseProgress + number)]
+    parseProgress += number
+    return takenOut
+
 
 def moveToChar(char: str):
     global parseProgress
@@ -81,7 +81,8 @@ def moveToChar(char: str):
     while parseProgress < len(tokens) and tokens[parseProgress] != char:
         parseProgress += 1
     if parseProgress >= len(tokens):
-        raise Exception(f"Invalid input in moveToChar function: '{char}' not found")
+        raise Exception(
+            f"Invalid input in moveToChar function: '{char}' not found")
     return tokens[parseProgress]
 
 
@@ -91,6 +92,7 @@ class NodeTimes(Node):
 
     def evaluate(self):
         return self.left.evaluate() * self.right.evaluate()
+
 
 class NodeCompare(Node):
     def __init__(self, left, right, comparison_type: ComparisonOperator):
@@ -112,6 +114,7 @@ class NodeCompare(Node):
             case _:
                 raise Exception("Unsupported comparison operator")
 
+
 def I():
     global tokens
     global parseProgress
@@ -122,56 +125,34 @@ def I():
             evaluate_if()
         else:
             evaluate_else()
-    else :
+    else:
         V()
-    # if tokens[parseProgress-1] == '{':
-    #  if condition:
-    #     resC = V()
-    #     if tokens[parseProgress] == 'else':
-    #      moveToChar('}')
-    #  else:
- 
-    #     moveToChar('}')
-    #     if tokens[parseProgress +1] == 'else':
-    #         moveToChar('}')
-       
-        
-    #     if tokens[parseProgress] == 'else':
-    #         parseTokens()
-    #         if tokens[parseProgress] == '{':
-    #             parseTokens()
-    #             V( )
-             
-    #         elif tokens[parseProgress] == ';':
-    #             parseTokens()
-    #         else:
-    #             raise Exception("Invalid input in I function")
-   
+
+
 def evaluate_if():
     if tokens[parseProgress-1] != '{':
         raise Exception('if statement body doesnt begin with {')
     resC = V()
-    print (resC)
-    # if tokens[parseProgress] == 'else':
-    #     moveToChar('}')
+    print(resC)
+
 
 def evaluate_else():
     moveToChar('}')
     print(tokens[parseProgress])
-    if tokens[parseProgress +1] == 'else':
+    if tokens[parseProgress + 1] == 'else':
         parseTokens(3)
     resV = V()
-        
-    
 
-def V( ):
+
+def V():
     global tokens
     global parseProgress
     if tokens[parseProgress] == 'var':
         parseTokens()
         varName = parseTokens()
         if varName.isnumeric():
-            raise Exception("Invalid variable name: Variable names cannot be numbers")
+            raise Exception(
+                "Invalid variable name: Variable names cannot be numbers")
         if tokens[parseProgress] != '=':
             raise Exception("Invalid input in V function")
         parseTokens()
@@ -179,28 +160,26 @@ def V( ):
         stack[varName] = resC.evaluate()
     elif tokens[parseProgress] == '':
         return
-    elif  stack.get(tokens[parseProgress]) is not None  and tokens[parseProgress+1] == '='  :
+    elif stack.get(tokens[parseProgress]) is not None and tokens[parseProgress+1] == '=':
         varName = parseTokens()
-        parseTokens( )
+        parseTokens()
         resC = C()
         if resC:
-            stack[ varName] = resC.evaluate()
+            stack[varName] = resC.evaluate()
     else:
         resC = C()
         if resC:
-            
-           print (resC.evaluate())
+            print(resC.evaluate())
+
 
 def C():
     global tokens
     global parseProgress
-   
-    # parseTokens()
     resS = S()
     resC = C_(resS)
     return resC
-   
-        
+
+
 def C_(lfs):
     global tokens
     global parseProgress
@@ -213,12 +192,13 @@ def C_(lfs):
         resS = S()
         resC_ = C_(resS)
         return NodeCompare(lfs, resC_, ComparisonOperator.GREATER_THAN)
-    elif operatorToken == '>=': 
+    elif operatorToken == '>=':
         resS = S()
         resC_ = C_(resS)
         return NodeCompare(lfs, resC_, ComparisonOperator.GREATER_THAN_OR_EQUAL)
     else:
         return lfs
+
 
 def A():
     global tokens
@@ -226,6 +206,7 @@ def A():
     resB = B()
     resA = A_(resB)
     return resA
+
 
 def A_(lfs):
     global tokens
@@ -239,12 +220,14 @@ def A_(lfs):
         case _:
             return lfs
 
+
 def S():
     global tokens
     global parseProgress
     resA = A()
     resS = S_(resA)
     return resS
+
 
 def S_(lfs):
     global tokens
@@ -256,13 +239,14 @@ def S_(lfs):
         return NodeAdd(lfs, resS)
     else:
         return lfs
-    # elif tokens[parseProgress] == '':
-    #     return resA
+
 
 def B():
     global tokens
     global parseProgress
     match   tokens[parseProgress]:
+        case ')':
+            raise Exception("bracket begins with )")
         case '(':
             parseTokens()
             resS = S()
@@ -275,11 +259,11 @@ def B():
             return Node(number, None, None)
         case str(varName):
             parseTokens()
-            number = stack.get(varName) 
+            number = stack.get(varName)
             return Node(number, None, None)
         case _:
             Exception("Invalid input in B function")
-    # return Node(lfs[0], None, None)
+
 
 def compile():
     global codeLineNum
@@ -295,6 +279,7 @@ def compile():
         I()
         parseProgress = 0
         print(stack)
+
 
 compile()
 
