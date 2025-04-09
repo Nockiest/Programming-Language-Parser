@@ -6,9 +6,9 @@ code5: str = 'var a = 5 '
 code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
-code9: str = 'var a = 5 ; var b = 6 ; if a > b { var c = a + b } ; '
-code10: str = ' if 5 > 7 { var c = 6 + 5 } else { var d = 5 + 6 * c } ;'	
-code11: str = 'var a = 5 ; var b = 6 ; var c = 0 ; if a > b { var c = a + b } else { var d = a + b * 5 } ;'	
+code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } ;'
+code10: str = ' var d = 0 ; var c = 2 ; if 6 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'	
+code11: str = 'var a = 7 ; var b = 8 ; var c = 0 ; var d = 0 ; if a > b { c = a + b } else { d = a + b * 5 } ;'	
 
 from enum import Enum
 
@@ -18,6 +18,7 @@ class ComparisonOperator(Enum):
     EQUAL = "=="
     
 stack: dict = {}
+splittedLines = code10.split(';')
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 
 tokens = completeTokens[0]
@@ -111,40 +112,57 @@ class NodeCompare(Node):
             case _:
                 raise Exception("Unsupported comparison operator")
 
-def I(condition = False):
+def I():
     global tokens
     global parseProgress
     if tokens[parseProgress] == 'if':
         parseTokens()
         resC = C()
         if resC.evaluate():
-            I(True)
+            evaluate_if()
         else:
-            I(False)
-    if tokens[parseProgress-1] == '{':
-     if condition:
-        resC = V()
-        if tokens[parseProgress] == 'else':
-         moveToChar('}')
-     else:
- 
-        moveToChar('}')
-        if tokens[parseProgress +1] == 'else':
-            moveToChar('}')
-       
-        
-        if tokens[parseProgress] == 'else':
-            parseTokens()
-            if tokens[parseProgress] == '{':
-                parseTokens()
-                V( )
-             
-            elif tokens[parseProgress] == ';':
-                parseTokens()
-            else:
-                raise Exception("Invalid input in I function")
+            evaluate_else()
     else :
         V()
+    # if tokens[parseProgress-1] == '{':
+    #  if condition:
+    #     resC = V()
+    #     if tokens[parseProgress] == 'else':
+    #      moveToChar('}')
+    #  else:
+ 
+    #     moveToChar('}')
+    #     if tokens[parseProgress +1] == 'else':
+    #         moveToChar('}')
+       
+        
+    #     if tokens[parseProgress] == 'else':
+    #         parseTokens()
+    #         if tokens[parseProgress] == '{':
+    #             parseTokens()
+    #             V( )
+             
+    #         elif tokens[parseProgress] == ';':
+    #             parseTokens()
+    #         else:
+    #             raise Exception("Invalid input in I function")
+   
+def evaluate_if():
+    if tokens[parseProgress-1] != '{':
+        raise Exception('if statement body doesnt begin with {')
+    resC = V()
+    print (resC)
+    # if tokens[parseProgress] == 'else':
+    #     moveToChar('}')
+
+def evaluate_else():
+    moveToChar('}')
+    print(tokens[parseProgress])
+    if tokens[parseProgress +1] == 'else':
+        parseTokens(2)
+    resV = V()
+        
+    
 
 def V( ):
     global tokens
@@ -161,6 +179,12 @@ def V( ):
         stack[varName] = resC.evaluate()
     elif tokens[parseProgress] == '':
         return
+    elif  stack.get(tokens[parseProgress]) is not None  and tokens[parseProgress+1] == '='  :
+        varName = parseTokens()
+        parseTokens( )
+        resC = C()
+        if resC:
+            stack[ varName] = resC.evaluate()
     else:
         resC = C()
         if resC:
@@ -229,7 +253,7 @@ def S_(lfs):
         parseTokens()
         resA = A()
         resS = S_(resA)
-        return NodeAdd(lfs, resS,)
+        return NodeAdd(lfs, resS)
     else:
         return lfs
     # elif tokens[parseProgress] == '':
