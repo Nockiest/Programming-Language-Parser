@@ -8,14 +8,15 @@ code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
 code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
 code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
 code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } ;'
-code10: str = ' var d = 0 ; var c = 2 ; if 8 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'
+code10: str = ' var d = 0 ; var c = 2 ; if 6 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'
 code11: str = 'var a = 7 ; var b = 8 ; var c = 0 ; var d = 0 ; if a > b { c = a + b } else { d = a + b * 5 } ;'
+code12: str = 'var a = 9 ; var b = 8 ;  if a > b { var c = a + b }  ;'
 
 
 stack: dict = {} # stores variables
 
 
-splittedLines = code10.split(';')
+splittedLines = code12.split(';')
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 tokens = completeTokens[0]
 codeLineNum = 0
@@ -143,16 +144,16 @@ def evaluate_else():
         parseTokens(3)
     resV = V()
 
-
+## TODO - forbid assignin special chars as part of the varname
 def V():
     global tokens
     global parseProgress
     if tokens[parseProgress] == 'var':
         parseTokens()
         varName = parseTokens()
-        if varName.isnumeric():
+        if varName.isnumeric(): # or ['=', '==', '', '>', '>=' ].index(varName) >= 0 :
             raise Exception(
-                "Invalid variable name: Variable names cannot be numbers")
+                "Invalid variable name: Variable names cannot be numbers ir special chars")
         if tokens[parseProgress] != '=':
             raise Exception("Invalid input in V function")
         parseTokens()
