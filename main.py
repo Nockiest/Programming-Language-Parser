@@ -1,32 +1,23 @@
 from enum import Enum
-code: str = "1 + 2"
-code2 = "( 1 + 1 ) * 2"
-code3: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) )'
-code4: str = '5 * ( 1 * ( 2 + 2 ) + ( ( 1 ) ) ) ; 1 + 2 ; 3 * 4 ; 5 + 6 ; 7 * 8 ; 9 + 6 ;'
-code5: str = 'var a = 5 '
-code6: str = 'var a = 5 ; var b = 6 ; var c = a + b ;'
-code7: str = 'var a = 5 ; var b = 8 ; var c = a + b ; var d = a * b + c ;'
-code8: str = 'var a = 5 ; var b = 8 ; a > b ; a >= b ; a == b ;'
-code9: str = 'var a = 7 ; var b = 6 ; if a > b { var c = a + b } ;'
-code10: str = ' var d = 0 ; var c = 2 ; if 6 > 7 { c = 6 + 5 } else { d = 5 + 6 * c } ;'
-code11: str = 'var a = 7 ; var b = 8 ; var c = 0 ; var d = 0 ; if a > b { c = a + b } else { d = a + b * 5 } ;'
-code12: str = 'var a = 9 ; var b = 8 ;  if a > b { var c = a + b }  ;'
 
+stack: dict = {}  # stores variables
 
-stack: dict = {} # stores variables
+with open("code.txt", "r") as codeFile:
+    code = codeFile.read().strip()  # Read the entire file and remove leading/trailing whitespace
 
-
-splittedLines = code12.split(';')
+splittedLines = code.split(';')
 completeTokens = [subarray.split() + [''] for subarray in splittedLines]
 tokens = completeTokens[0]
 codeLineNum = 0
 parseProgress: int = 0
 
+'''used for choosing between > >= and == operators'''
 class ComparisonOperator(Enum):
     GREATER_THAN = ">"
     GREATER_THAN_OR_EQUAL = ">="
     EQUAL = "=="
 
+'''Node with some value and left and right children inside a syntax tree '''
 class Node:
     def __init__(self, value, left, right):
         self.value = value
@@ -49,6 +40,7 @@ class Node:
         else:
             Exception("Invalid input for evaluation in Node class")
 
+
 class NodeAdd(Node):
     def __init__(self, left, right):
         if not left or right:
@@ -57,34 +49,6 @@ class NodeAdd(Node):
 
     def evaluate(self):
         return self.left.evaluate() + self.right.evaluate()
-
-
-def parseTokens(number: int = 1):
-    global tokens
-    global parseProgress
-    takenOut: str
-    if parseProgress >= len(tokens)-1:
-        Exception("Invalid input in parseTokens function")
-    if number == 1:
-        takenOut = tokens[parseProgress]
-    else:
-        takenOut = tokens[parseProgress:(parseProgress + number)]
-    parseProgress += number
-    return takenOut
-
-
-def moveToChar(char: str):
-    global parseProgress
-    global tokens
-    if char == tokens[parseProgress]:
-        parseProgress += 1
-        print('incremented char so it finds the next one')
-    while parseProgress < len(tokens) and tokens[parseProgress] != char:
-        parseProgress += 1
-    if parseProgress >= len(tokens):
-        raise Exception(
-            f"Invalid input in moveToChar function: '{char}' not found")
-    return tokens[parseProgress]
 
 
 class NodeTimes(Node):
@@ -116,6 +80,34 @@ class NodeCompare(Node):
                 raise Exception("Unsupported comparison operator")
 
 
+def parseTokens(number: int = 1):
+    global tokens
+    global parseProgress
+    takenOut: str
+    if parseProgress >= len(tokens)-1:
+        Exception("Invalid input in parseTokens function")
+    if number == 1:
+        takenOut = tokens[parseProgress]
+    else:
+        takenOut = tokens[parseProgress:(parseProgress + number)]
+    parseProgress += number
+    return takenOut
+
+
+def moveToChar(char: str):
+    global parseProgress
+    global tokens
+    if char == tokens[parseProgress]:
+        parseProgress += 1
+        print('incremented char so it finds the next one')
+    while parseProgress < len(tokens) and tokens[parseProgress] != char:
+        parseProgress += 1
+    if parseProgress >= len(tokens):
+        raise Exception(
+            f"Invalid input in moveToChar function: '{char}' not found")
+    return tokens[parseProgress]
+
+
 def I():
     global tokens
     global parseProgress
@@ -144,14 +136,17 @@ def evaluate_else():
         parseTokens(3)
     resV = V()
 
-## TODO - forbid assignin special chars as part of the varname
+# TODO - forbid assignin special chars as part of the varname
+
+
 def V():
     global tokens
     global parseProgress
     if tokens[parseProgress] == 'var':
         parseTokens()
         varName = parseTokens()
-        if varName.isnumeric(): # or ['=', '==', '', '>', '>=' ].index(varName) >= 0 :
+        # or ['=', '==', '', '>', '>=' ].index(varName) >= 0 :
+        if varName.isnumeric():
             raise Exception(
                 "Invalid variable name: Variable names cannot be numbers ir special chars")
         if tokens[parseProgress] != '=':
