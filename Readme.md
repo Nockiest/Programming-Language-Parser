@@ -31,6 +31,6 @@ each char is seperated by a whitespace:
 The code works by creating a tree from the operators and numbers and evaluating them bottom to top. The tree contains numbers as leaves. The parents are * then + then >= and so on. When the code needs the value of the syntax tree it calls ROOTNODE.evaluate(), it goes recursively throught the tree and when it evaluates code in the leaf nodes it is inserted as a numer to the parent then to its parent, until it reaches the root.  
 
 ## How to run it
-1. copy the repo to your pc
+1. copy the repo to your pc  `git clone [text](https://github.com/Nockiest/Programming-Language-Parser.git)`
 2. Insert desired code into code.txt 
-3. run the  main.py program, it should write out the values of the variables after reading each line of code
+3. run the main.py program, it should write out the values of the variables after reading each line of code
